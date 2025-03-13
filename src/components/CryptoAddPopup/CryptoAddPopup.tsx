@@ -1,6 +1,5 @@
 import { FC, useEffect, useState } from 'react'
 import clsx from 'clsx'
-import { motion, Variants } from 'framer-motion'
 
 import { useAppDispatch, useAppSelector } from '../../store/hooks'
 import { closeModal } from '../../store/slices/UISlice'
@@ -8,6 +7,7 @@ import { addCrypto, loadCrypto } from '../../store/slices/cryptoSlice'
 
 import { Loader } from '../Loader/Loader'
 import { Button, TextInput } from '@gravity-ui/uikit'
+import { CryptoList } from '../CryptoList/CryptoList'
 
 import styles from './CryptoAddPopup.module.sass'
 
@@ -15,13 +15,12 @@ interface CryptoAddPopupProps {
 	className?: string
 }
 
-const listVariants: Variants = {
-	initial: {
-		opacity: 0,
-	},
-	animate: {
-		opacity: 1,
-	},
+export interface IOptions {
+	token: string
+	tokenPrice: number
+	totalPrice: number
+	priceChangePercent: number
+	symbol: string
 }
 
 export const CryptoAddPopup: FC<CryptoAddPopupProps> = ({ className }) => {
@@ -35,13 +34,6 @@ export const CryptoAddPopup: FC<CryptoAddPopupProps> = ({ className }) => {
 
 	const [isOptionsVisible, setIsOptionsVisible] = useState<boolean>(false)
 	const [tokenCount, setTokenCount] = useState<number>(1)
-	interface IOptions {
-		token: string
-		tokenPrice: number
-		totalPrice: number
-		priceChangePercent: number
-		symbol: string
-	}
 
 	const [options, setOptions] = useState<IOptions>({
 		token: '',
@@ -82,43 +74,12 @@ export const CryptoAddPopup: FC<CryptoAddPopupProps> = ({ className }) => {
 						value={search}
 						onChange={(e) => setSearch(e.target.value)}
 					/>
-					<motion.ul
-						variants={listVariants}
-						initial='initial'
-						animate='animate'
-						exit='initial'
-						className={styles.list}
-					>
-						{filteredCrypto.map((token) => (
-							<li
-								className={styles.item}
-								key={token.symbol}
-								onClick={() => {
-									setOptions(() => ({
-										token: token.token,
-										tokenPrice: token.price,
-										priceChangePercent: token.priceChangePercent,
-										symbol: token.symbol,
-										totalPrice: 0,
-									}))
-									setTokenCount(1)
-									setIsOptionsVisible(true)
-								}}
-							>
-								<div className={styles.toke}>{token.token}</div>
-								<div className={styles.price}>{token.price.toFixed(2)}$</div>
-								<div
-									className={clsx(
-										styles.percent,
-										token.priceChangePercent < 0 && styles.red
-									)}
-								>
-									{token.priceChangePercent > 0 && '+'}
-									{token.priceChangePercent.toFixed(2)}%
-								</div>
-							</li>
-						))}
-					</motion.ul>
+					<CryptoList
+						filteredCrypto={filteredCrypto}
+						setOptions={setOptions}
+						setTokenCount={setTokenCount}
+						setIsOptionsVisible={setIsOptionsVisible}
+					/>
 					{isOptionsVisible && (
 						<div className={styles.optionsWrapper}>
 							<div className={styles.optionsToken}>{options.token}</div>

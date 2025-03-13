@@ -6,7 +6,8 @@
 2. reduxjs/toolkit  
 3. Axios  
 4. Framer-motion  
-5. GravityUI в кач-ве UI компонентов  
+5. React-Virtuoso    
+6. GravityUI в кач-ве UI компонентов  
   
 ## Для запуска проекта  
 ```

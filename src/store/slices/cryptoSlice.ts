@@ -39,7 +39,6 @@ export const loadCrypto = createAsyncThunk(
 					price: parseFloat(item.lastPrice),
 					priceChangePercent: parseFloat(item.priceChangePercent),
 				}))
-				.slice(0, 30)
 		} catch (error: AxiosError | unknown) {
 			if (error instanceof AxiosError) {
 				return rejectWithValue(error.message)
