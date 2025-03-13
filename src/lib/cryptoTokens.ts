@@ -1,0 +1,16 @@
+export const TOKENS = [
+	'BTC',
+	'ETH',
+	'BNB',
+	'BCC',
+	'NEO',
+	'LTC',
+	'QTUM',
+	'XRP',
+	'TUSD',
+	'USDT',
+	'ONT',
+	'VET',
+	'PAX',
+	'USDC',
+]
