@@ -16,4 +16,6 @@ npm run start
 ```
   
 ## Демо ссылка  
-[demo](https://sparkkkd.github.io/crypto-portfolio/)  
+[Link](https://sparkkkd.github.io/crypto-portfolio/)  
+  
+или https://sparkkkd.github.io/crypto-portfolio/
