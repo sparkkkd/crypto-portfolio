@@ -1,8 +1,10 @@
 import { combineReducers, configureStore } from '@reduxjs/toolkit'
 import cryptoReducer from './slices/cryptoSlice'
+import UISlice from './slices/UISlice'
 
 const rootReducer = combineReducers({
 	cryptoReducer,
+	UISlice,
 })
 
 export const store = configureStore({

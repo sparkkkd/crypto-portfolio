@@ -1,8 +1,10 @@
 import { FC, useEffect, useState } from 'react'
 import clsx from 'clsx'
-import { useAppDispatch, useAppSelector } from '../../store/hooks'
-import { addCrypto, loadCrypto } from '../../store/slices/cryptoSlice'
 import { motion, Variants } from 'framer-motion'
+
+import { useAppDispatch, useAppSelector } from '../../store/hooks'
+import { closeModal } from '../../store/slices/UISlice'
+import { addCrypto, loadCrypto } from '../../store/slices/cryptoSlice'
 
 import { Loader } from '../Loader/Loader'
 import { Button, TextInput } from '@gravity-ui/uikit'
@@ -31,13 +33,12 @@ export const CryptoAddPopup: FC<CryptoAddPopupProps> = ({ className }) => {
 		item.token.includes(search.toUpperCase())
 	)
 
-	const [tokenCount, setTokenCount] = useState<number>(0)
-
+	const [isOptionsVisible, setIsOptionsVisible] = useState<boolean>(false)
+	const [tokenCount, setTokenCount] = useState<number>(1)
 	interface IOptions {
 		token: string
 		tokenPrice: number
 		totalPrice: number
-		isOptionsVisible: boolean
 		priceChangePercent: number
 		symbol: string
 	}
@@ -46,7 +47,6 @@ export const CryptoAddPopup: FC<CryptoAddPopupProps> = ({ className }) => {
 		token: '',
 		tokenPrice: 0,
 		totalPrice: 0,
-		isOptionsVisible: false,
 		priceChangePercent: 0,
 		symbol: '',
 	})
@@ -62,6 +62,7 @@ export const CryptoAddPopup: FC<CryptoAddPopupProps> = ({ className }) => {
 				totalPrice: tokenCount * options.tokenPrice,
 			})
 		)
+		setTokenCount(1)
 	}
 
 	useEffect(() => {
@@ -96,12 +97,12 @@ export const CryptoAddPopup: FC<CryptoAddPopupProps> = ({ className }) => {
 									setOptions(() => ({
 										token: token.token,
 										tokenPrice: token.price,
-										isOptionsVisible: true,
 										priceChangePercent: token.priceChangePercent,
 										symbol: token.symbol,
 										totalPrice: 0,
 									}))
-									setTokenCount(0)
+									setTokenCount(1)
+									setIsOptionsVisible(true)
 								}}
 							>
 								<div className={styles.toke}>{token.token}</div>
@@ -118,32 +119,50 @@ export const CryptoAddPopup: FC<CryptoAddPopupProps> = ({ className }) => {
 							</li>
 						))}
 					</motion.ul>
-					{options.isOptionsVisible && (
+					{isOptionsVisible && (
 						<div className={styles.optionsWrapper}>
 							<div className={styles.optionsToken}>{options.token}</div>
 							<p>
 								Итоговая стоимость: {'$'}
 								{(options.tokenPrice * tokenCount).toFixed(2)}
 							</p>
-
+							<TextInput
+								value={tokenCount.toString()}
+								onChange={(e) => {
+									if (Number(e.target.value) < 1) {
+										return setTokenCount(1)
+									}
+									setTokenCount(Number(e.target.value))
+								}}
+								placeholder='Кол-во'
+								type='number'
+							/>
 							<div className={styles.options}>
-								<TextInput
-									value={tokenCount.toString()}
-									onChange={(e) => setTokenCount(+e.target.value)}
-									placeholder='Кол-во'
-								/>
-								<Button onClick={handleAddCrypto}>Добавить</Button>
+								<Button width='max' onClick={handleAddCrypto}>
+									Добавить
+								</Button>
 								<Button
+									width='max'
+									onClick={() => {
+										handleAddCrypto()
+										setIsOptionsVisible(false)
+										dispatch(closeModal())
+									}}
+								>
+									Добавить и закрыть
+								</Button>
+								<Button
+									width='max'
 									onClick={() => {
 										setOptions({
 											token: '',
 											tokenPrice: 0,
-											isOptionsVisible: false,
 											priceChangePercent: 0,
 											symbol: '',
 											totalPrice: 0,
 										})
-										setTokenCount(0)
+										setTokenCount(1)
+										setIsOptionsVisible(false)
 									}}
 								>
 									Отмена

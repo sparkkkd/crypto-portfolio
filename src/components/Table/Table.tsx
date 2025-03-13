@@ -5,11 +5,13 @@ import { useAppDispatch, useAppSelector } from '../../store/hooks'
 import {
 	getCryptoFromLocalStorage,
 	removeCrypto,
+	updateCrypto,
 } from '../../store/slices/cryptoSlice'
 
 import { Table as TableUI, withTableActions } from '@gravity-ui/uikit'
 
 import styles from './Table.module.sass'
+import { IEventData, IUpdatedToken } from '../../models/tokenTypes'
 
 interface TableProps {
 	className?: string
@@ -19,7 +21,7 @@ const MyTable = withTableActions(TableUI)
 interface Item {
 	name: string
 	count: string
-	price: string
+	price: JSX.Element
 	totalPrice: string
 	priceChangePercent: JSX.Element
 	portfolioPercent: string
@@ -41,7 +43,7 @@ export const Table: FC<TableProps> = ({ className }) => {
 	const data: Item[] = userCrypto.map((item) => ({
 		name: item.name,
 		count: item.count.toFixed(5),
-		price: '$' + item.price.toFixed(2),
+		price: <div className={styles.price}>${item.price.toFixed(2)}</div>,
 		totalPrice: '$' + item.totalPrice.toFixed(2),
 		priceChangePercent: (
 			<div className={item.priceChangePercent > 0 ? styles.green : styles.red}>
@@ -50,6 +52,7 @@ export const Table: FC<TableProps> = ({ className }) => {
 		),
 		portfolioPercent: item.portfolioPercent.toFixed(2).toString() + '%',
 	}))
+
 	const columns = [
 		{ id: 'name', name: 'Актив' },
 		{ id: 'count', name: 'Количество' },
@@ -59,23 +62,22 @@ export const Table: FC<TableProps> = ({ className }) => {
 		{ id: 'portfolioPercent', name: '% Портфеля' },
 	]
 
-	// wss://stream.binance.com:9443/stream?streams=btcusdt@avgPrice
-	// s - Symbol
-	// c - current price
-	// P - price change percent
+	useEffect(() => {
+		socket.current = new WebSocket(
+			`wss://stream.binance.com:9443/stream?streams=bnbusdt@ticker/btcusdt@ticker`
+		)
 
-	// useEffect(() => {
-	// 	socket.current = new WebSocket(
-	// 		`wss://stream.binance.com:9443/stream?streams=bnbusdt@ticker/btcusdt@ticker`
-	// 	)
+		socket.current.onmessage = (event) => {
+			const { data } = JSON.parse(event.data) as IEventData
+			const updatedData: IUpdatedToken = {
+				symbol: data.s,
+				price: data.c,
+				priceChangePercent: data.P,
+			}
 
-	// 	socket.current.onopen = (event) => {
-	// 	}
-
-	// 	socket.current.onmessage = (event) => {
-	// 		console.log(JSON.parse(event.data))
-	// 	}
-	// }, [])
+			dispatch(updateCrypto(updatedData))
+		}
+	}, [])
 
 	return (
 		<div className={clsx(className, styles.table)}>
@@ -87,6 +89,7 @@ export const Table: FC<TableProps> = ({ className }) => {
 				}}
 				className={styles.table}
 				edgePadding={false}
+				emptyMessage='Добавьте активы в портфель'
 			/>
 		</div>
 	)

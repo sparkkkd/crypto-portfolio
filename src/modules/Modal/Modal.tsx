@@ -5,11 +5,11 @@ import clsx from 'clsx'
 import { AnimatePresence, motion, Variants } from 'framer-motion'
 
 import styles from './Modal.module.sass'
+import { useAppDispatch, useAppSelector } from '../../store/hooks'
+import { closeModal } from '../../store/slices/UISlice'
 
 interface ModalProps extends React.PropsWithChildren {
 	className?: string
-	open: boolean
-	setOpen: () => void
 }
 
 const overlayVariants: Variants = {
@@ -42,22 +42,20 @@ const wrapperVariants: Variants = {
 	},
 }
 
-export const Modal: FC<ModalProps> = ({
-	className,
-	children,
-	open,
-	setOpen,
-}) => {
+export const Modal: FC<ModalProps> = ({ className, children }) => {
+	const { isModalOpen } = useAppSelector((state) => state.UISlice)
+	const dispatch = useAppDispatch()
+
 	return ReactDOM.createPortal(
 		<AnimatePresence>
-			{open && (
+			{isModalOpen && (
 				<motion.div
 					variants={overlayVariants}
 					initial='initial'
 					animate='animate'
 					exit='initial'
 					className={clsx(className, styles.overlay)}
-					onClick={setOpen}
+					onClick={() => dispatch(closeModal())}
 				>
 					<motion.div
 						variants={wrapperVariants}

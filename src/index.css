@@ -682,6 +682,7 @@
 
 .g-table__cell {
     text-align: center;
+    border-block-end: 2px solid rgba(78, 70, 179, .2)
 }
 
 .g-table__row:hover {

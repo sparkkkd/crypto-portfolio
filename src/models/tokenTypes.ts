@@ -21,3 +21,17 @@ export interface IUserToken {
 	priceChangePercent: number
 	portfolioPercent: number
 }
+
+export interface IUpdatedToken {
+	symbol: string
+	price: string
+	priceChangePercent: string
+}
+
+export interface IEventData {
+	data: {
+		s: string
+		c: string
+		P: string
+	}
+}
