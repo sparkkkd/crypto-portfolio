@@ -1,7 +1,7 @@
 import { FC, useEffect, useState } from 'react'
 import clsx from 'clsx'
 import { useAppDispatch, useAppSelector } from '../../store/hooks'
-import { loadCrypto } from '../../store/slices/cryptoSlice'
+import { addCrypto, loadCrypto } from '../../store/slices/cryptoSlice'
 import { motion, Variants } from 'framer-motion'
 
 import { Loader } from '../Loader/Loader'
@@ -36,14 +36,33 @@ export const CryptoAddPopup: FC<CryptoAddPopupProps> = ({ className }) => {
 	interface IOptions {
 		token: string
 		tokenPrice: number
+		totalPrice: number
 		isOptionsVisible: boolean
+		priceChangePercent: number
+		symbol: string
 	}
 
 	const [options, setOptions] = useState<IOptions>({
 		token: '',
 		tokenPrice: 0,
+		totalPrice: 0,
 		isOptionsVisible: false,
+		priceChangePercent: 0,
+		symbol: '',
 	})
+
+	const handleAddCrypto = () => {
+		dispatch(
+			addCrypto({
+				name: options.token,
+				count: tokenCount,
+				price: options.tokenPrice,
+				priceChangePercent: options.priceChangePercent,
+				symbol: options.symbol,
+				totalPrice: tokenCount * options.tokenPrice,
+			})
+		)
+	}
 
 	useEffect(() => {
 		dispatch(loadCrypto())
@@ -74,11 +93,13 @@ export const CryptoAddPopup: FC<CryptoAddPopupProps> = ({ className }) => {
 								className={styles.item}
 								key={token.symbol}
 								onClick={() => {
-									setOptions((prev) => ({
-										...prev,
+									setOptions(() => ({
 										token: token.token,
 										tokenPrice: token.price,
 										isOptionsVisible: true,
+										priceChangePercent: token.priceChangePercent,
+										symbol: token.symbol,
+										totalPrice: 0,
 									}))
 									setTokenCount(0)
 								}}
@@ -101,8 +122,8 @@ export const CryptoAddPopup: FC<CryptoAddPopupProps> = ({ className }) => {
 						<div className={styles.optionsWrapper}>
 							<div className={styles.optionsToken}>{options.token}</div>
 							<p>
-								Итоговая стоимость:{' '}
-								{(options.tokenPrice * tokenCount).toFixed(2)}$
+								Итоговая стоимость: {'$'}
+								{(options.tokenPrice * tokenCount).toFixed(2)}
 							</p>
 
 							<div className={styles.options}>
@@ -111,13 +132,16 @@ export const CryptoAddPopup: FC<CryptoAddPopupProps> = ({ className }) => {
 									onChange={(e) => setTokenCount(+e.target.value)}
 									placeholder='Кол-во'
 								/>
-								<Button>Добавить</Button>
+								<Button onClick={handleAddCrypto}>Добавить</Button>
 								<Button
 									onClick={() => {
 										setOptions({
 											token: '',
 											tokenPrice: 0,
 											isOptionsVisible: false,
+											priceChangePercent: 0,
+											symbol: '',
+											totalPrice: 0,
 										})
 										setTokenCount(0)
 									}}

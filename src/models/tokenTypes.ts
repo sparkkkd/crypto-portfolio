@@ -13,7 +13,6 @@ export interface IToken {
 }
 
 export interface IUserToken {
-	id: string
 	symbol: string
 	name: string
 	count: number

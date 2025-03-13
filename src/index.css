@@ -672,4 +672,26 @@
         --g-text-input-border-width: 0px;
         --g-text-input-placeholder-color: #EBE7FF
 
+        
+}
+
+.g-table__row td {
+    padding: 35px 0px;
+    text-align: center;
+}
+
+.g-table__cell {
+    text-align: center;
+}
+
+.g-table__row:hover {
+    background-color: rgba(25, 28, 38, 0.97) !important;
+}
+
+.g-table__row {
+    transition: all 0.3s ease-in-out;
+}
+
+.g-table__cell_sticky_end {
+    display: none;
 }

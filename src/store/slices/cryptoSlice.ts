@@ -1,7 +1,9 @@
 import { createAsyncThunk, createSlice } from '@reduxjs/toolkit'
 import axios, { AxiosError } from 'axios'
+import { updatePortfolioPercent } from '../../lib/updatePortfolioPercent'
 
 import { ILoadToken, IToken, IUserToken } from '../../models/tokenTypes'
+import { IAddCryptoPayload } from '../../models/payloadTypes'
 
 interface IInitialState {
 	userCrypto: IUserToken[]
@@ -45,11 +47,43 @@ export const cryptoApi = createSlice({
 	name: 'crypto',
 	initialState,
 	reducers: {
-		addCrypto: (state, action) => {},
+		addCrypto: (state, action: { payload: IAddCryptoPayload }) => {
+			const index = state.userCrypto.findIndex(
+				(item) => item.name === action.payload.name
+			)
 
-		removeCrypto: (state, action) => {},
+			if (index !== -1) {
+				state.userCrypto[index].count += action.payload.count
+				state.userCrypto[index].totalPrice += action.payload.totalPrice
+			} else {
+				state.userCrypto.push({
+					...action.payload,
+					totalPrice: action.payload.totalPrice,
+					portfolioPercent: 0,
+				})
+			}
 
-		updateCrypto: (state, action) => {},
+			// Update portfolio
+			updatePortfolioPercent(state.userCrypto)
+
+			localStorage.setItem('userCrypto', JSON.stringify(state.userCrypto))
+		},
+
+		updateCrypto: () => {
+			console.log(`update`)
+		},
+
+		removeCrypto: (state, action: { payload: string }) => {
+			state.userCrypto = state.userCrypto.filter(
+				(item) => item.name !== action.payload
+			)
+
+			localStorage.setItem('userCrypto', JSON.stringify(state.userCrypto))
+		},
+
+		getCryptoFromLocalStorage: (state, action) => {
+			state.userCrypto = action.payload
+		},
 	},
 	extraReducers: (builder) => {
 		// Start Loading crypto
@@ -68,3 +102,5 @@ export const cryptoApi = createSlice({
 })
 
 export default cryptoApi.reducer
+export const { addCrypto, removeCrypto, getCryptoFromLocalStorage } =
+	cryptoApi.actions
