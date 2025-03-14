@@ -7,11 +7,11 @@ import {
 	removeCrypto,
 	updateCrypto,
 } from '../../store/slices/cryptoSlice'
+import { IEventData, IUpdatedToken } from '../../models/tokenTypes'
 
 import { Table as TableUI, withTableActions } from '@gravity-ui/uikit'
 
 import styles from './Table.module.sass'
-import { IEventData, IUpdatedToken } from '../../models/tokenTypes'
 
 interface TableProps {
 	className?: string
@@ -31,6 +31,32 @@ export const Table: FC<TableProps> = ({ className }) => {
 	const { userCrypto } = useAppSelector((state) => state.cryptoReducer)
 	const dispatch = useAppDispatch()
 	const socket = useRef<WebSocket>(null)
+
+	const streams = userCrypto
+		.reduce((acc, item) => {
+			return acc + item.symbol.toLowerCase() + '@ticker/'
+		}, '')
+		.slice(0, -1)
+
+	useEffect(() => {
+		socket.current = new WebSocket(
+			`wss://stream.binance.com:9443/stream?streams=${streams}`
+		)
+
+		socket.current.onmessage = (event) => {
+			const { data } = JSON.parse(event.data) as IEventData
+			const updatedData: IUpdatedToken = {
+				symbol: data.s,
+				price: data.c,
+				priceChangePercent: data.P,
+			}
+			dispatch(updateCrypto(updatedData))
+		}
+
+		return () => {
+			if (socket.current?.readyState === 1) socket.current?.close()
+		}
+	}, [streams])
 
 	useEffect(() => {
 		dispatch(
@@ -61,23 +87,6 @@ export const Table: FC<TableProps> = ({ className }) => {
 		{ id: 'priceChangePercent', name: 'Изм. за 24 ч.' },
 		{ id: 'portfolioPercent', name: '% Портфеля' },
 	]
-
-	useEffect(() => {
-		socket.current = new WebSocket(
-			`wss://stream.binance.com:9443/stream?streams=bnbusdt@ticker/btcusdt@ticker`
-		)
-
-		socket.current.onmessage = (event) => {
-			const { data } = JSON.parse(event.data) as IEventData
-			const updatedData: IUpdatedToken = {
-				symbol: data.s,
-				price: data.c,
-				priceChangePercent: data.P,
-			}
-
-			dispatch(updateCrypto(updatedData))
-		}
-	}, [])
 
 	return (
 		<div className={clsx(className, styles.table)}>
