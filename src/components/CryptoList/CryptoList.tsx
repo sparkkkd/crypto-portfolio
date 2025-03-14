@@ -36,7 +36,6 @@ export const CryptoList: FC<CryptoListProps> = ({
 			variants={listVariants}
 			initial='initial'
 			animate='animate'
-			exit='initial'
 			className={clsx(className, styles.list)}
 		>
 			<Virtuoso

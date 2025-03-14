@@ -1,12 +1,11 @@
 import { FC } from 'react'
 import ReactDOM from 'react-dom'
 import clsx from 'clsx'
-
-import { AnimatePresence, motion, Variants } from 'framer-motion'
-
-import styles from './Modal.module.sass'
+import { motion, Variants } from 'framer-motion'
 import { useAppDispatch, useAppSelector } from '../../store/hooks'
 import { closeModal } from '../../store/slices/UISlice'
+
+import styles from './Modal.module.sass'
 
 interface ModalProps extends React.PropsWithChildren {
 	className?: string
@@ -46,30 +45,28 @@ export const Modal: FC<ModalProps> = ({ className, children }) => {
 	const { isModalOpen } = useAppSelector((state) => state.UISlice)
 	const dispatch = useAppDispatch()
 
+	if (!isModalOpen) return null
+
 	return ReactDOM.createPortal(
-		<AnimatePresence>
-			{isModalOpen && (
-				<motion.div
-					variants={overlayVariants}
-					initial='initial'
-					animate='animate'
-					exit='initial'
-					className={clsx(className, styles.overlay)}
-					onClick={() => dispatch(closeModal())}
-				>
-					<motion.div
-						variants={wrapperVariants}
-						initial='initial'
-						animate='animate'
-						exit='initial'
-						className={styles.wrapper}
-						onClick={(e) => e.stopPropagation()}
-					>
-						{children}
-					</motion.div>
-				</motion.div>
-			)}
-		</AnimatePresence>,
+		<motion.div
+			variants={overlayVariants}
+			initial='initial'
+			animate='animate'
+			exit='initial'
+			className={clsx(className, styles.overlay)}
+			onClick={() => dispatch(closeModal())}
+		>
+			<motion.div
+				variants={wrapperVariants}
+				initial='initial'
+				animate='animate'
+				exit='initial'
+				className={styles.wrapper}
+				onClick={(e) => e.stopPropagation()}
+			>
+				{children}
+			</motion.div>
+		</motion.div>,
 		document.body
 	)
 }

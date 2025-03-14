@@ -2,7 +2,7 @@ import { Container } from './components/Container/Container.tsx'
 
 import styles from './App.module.sass'
 import { Header } from './modules/Header/Header.tsx'
-import { Table } from './components/Table/Table.tsx'
+import { Table } from './modules/Table/Table.tsx'
 
 function App() {
 	return (
